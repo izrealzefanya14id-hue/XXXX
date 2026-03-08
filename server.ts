@@ -6,8 +6,16 @@ import Database from "better-sqlite3";
 import mysql from "mysql2/promise";
 import fs from "fs";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import bcrypt from "bcrypt";
+import { z } from "zod";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'aic-holding-secret-key-2024';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -223,8 +231,41 @@ const setupDatabase = async () => {
     }
 
     // Seed Admin User
-    await db.run("INSERT INTO users (username, password) VALUES (?, ?)", ['admin', 'admin123']);
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await db.run("INSERT INTO users (username, password) VALUES (?, ?)", ['admin', hashedPassword]);
   }
+};
+
+// Validation Schemas
+const InquirySchema = z.object({
+  name: z.string().min(2).max(100),
+  company: z.string().max(100).optional(),
+  email: z.string().email(),
+  phone: z.string().min(5).max(20),
+  subject: z.string().min(2).max(200),
+  message: z.string().min(10).max(2000),
+});
+
+const LoginSchema = z.object({
+  username: z.string().min(3),
+  password: z.string().min(6),
+});
+
+// Authentication Middleware
+const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const token = req.cookies.admin_token;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized access" });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid or expired session" });
+    }
+    (req as any).user = user;
+    next();
+  });
 };
 
 async function startServer() {
@@ -233,7 +274,24 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Trust proxy is required for express-rate-limit to work correctly behind nginx
+  app.set('trust proxy', 1);
+
+  // Security Middlewares
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disable CSP for development with Vite
+  }));
+  
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { error: "Too many requests from this IP, please try again later." },
+    validate: { xForwardedForHeader: false },
+  });
+
   app.use(express.json());
+  app.use(cookieParser());
+  app.use("/api/", apiLimiter);
 
   // API Routes
   app.get("/api/settings", async (req, res) => {
@@ -323,15 +381,25 @@ async function startServer() {
 
   app.post("/api/inquiries", async (req, res) => {
     try {
-      const { name, company, email, phone, subject, message } = req.body;
-      await db.run("INSERT INTO inquiries (name, company, email, phone, subject, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)", [name, company, email, phone, subject, message, 'new']);
-      res.json({ success: true });
+      const validatedData = InquirySchema.parse(req.body);
+      const { name, company, email, phone, subject, message } = validatedData;
+      
+      await db.run(
+        "INSERT INTO inquiries (name, company, email, phone, subject, message, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [name, company || '', email, phone, subject, message, 'new']
+      );
+      
+      res.json({ success: true, message: "Inquiry submitted successfully" });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input data", details: error.issues });
+      }
+      console.error(error);
       res.status(500).json({ error: "Failed to submit inquiry" });
     }
   });
 
-  app.get("/api/inquiries", async (req, res) => {
+  app.get("/api/inquiries", authenticateToken, async (req, res) => {
     try {
       const list = await db.query("SELECT * FROM inquiries ORDER BY created_at DESC");
       res.json(list);
@@ -342,31 +410,75 @@ async function startServer() {
 
   app.post("/api/login", async (req, res) => {
     try {
-      const { username, password } = req.body;
-      const user = await db.get("SELECT * FROM users WHERE username = ? AND password = ?", [username, password]);
-      if (user) {
-        res.json({ success: true, token: "mock-token" });
-      } else {
-        res.status(401).json({ success: false, message: "Invalid credentials" });
+      const { username, password } = LoginSchema.parse(req.body);
+      
+      const user = await db.get("SELECT * FROM users WHERE username = ?", [username]);
+      
+      if (!user) {
+        return res.status(401).json({ error: "Invalid username or password" });
       }
+      
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        JWT_SECRET,
+        { expiresIn: '8h' }
+      );
+
+      res.cookie('admin_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 8 * 60 * 60 * 1000 // 8 hours
+      });
+
+      res.json({ 
+        success: true, 
+        user: { id: user.id, username: user.username }
+      });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input data", details: error.issues });
+      }
       res.status(500).json({ error: "Login failed" });
     }
   });
 
-  app.post("/api/admin/update-credentials", async (req, res) => {
+  app.post("/api/logout", (req, res) => {
+    res.clearCookie('admin_token');
+    res.json({ success: true });
+  });
+
+  app.get("/api/auth/check", authenticateToken, (req, res) => {
+    res.json({ success: true, user: (req as any).user });
+  });
+
+  app.post("/api/admin/update-credentials", authenticateToken, async (req, res) => {
     try {
       const { currentUsername, newUsername, currentPassword, newPassword } = req.body;
       
       // Verify current credentials
-      const user = await db.get("SELECT * FROM users WHERE username = ? AND password = ?", [currentUsername, currentPassword]);
+      const user = await db.get("SELECT * FROM users WHERE username = ?", [currentUsername]);
       
       if (!user) {
         return res.status(401).json({ success: false, message: "Invalid current credentials" });
       }
 
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ success: false, message: "Invalid current credentials" });
+      }
+
       // Update credentials
-      await db.run("UPDATE users SET username = ?, password = ? WHERE id = ?", [newUsername || currentUsername, newPassword || currentPassword, user.id]);
+      const finalUsername = newUsername || currentUsername;
+      const finalPassword = newPassword ? await bcrypt.hash(newPassword, 10) : user.password;
+
+      await db.run("UPDATE users SET username = ?, password = ? WHERE id = ?", [finalUsername, finalPassword, user.id]);
       
       res.json({ success: true, message: "Credentials updated successfully" });
     } catch (error) {
@@ -380,7 +492,7 @@ async function startServer() {
   
   entities.forEach(entity => {
     // Create
-    app.post(`/api/${entity}`, async (req, res) => {
+    app.post(`/api/${entity}`, authenticateToken, async (req, res) => {
       try {
         const data = req.body;
         const keys = Object.keys(data);
@@ -396,7 +508,7 @@ async function startServer() {
     });
 
     // Update
-    app.put(`/api/${entity}/:id`, async (req, res) => {
+    app.put(`/api/${entity}/:id`, authenticateToken, async (req, res) => {
       try {
         const data = req.body;
         const id = req.params.id;
@@ -413,7 +525,7 @@ async function startServer() {
     });
 
     // Delete
-    app.delete(`/api/${entity}/:id`, async (req, res) => {
+    app.delete(`/api/${entity}/:id`, authenticateToken, async (req, res) => {
       try {
         await db.run(`DELETE FROM ${entity} WHERE id = ?`, [req.params.id]);
         res.json({ success: true });

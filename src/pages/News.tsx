@@ -10,26 +10,27 @@ export default function News() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative py-32 bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
+      <section className="relative h-[60vh] bg-gray-900 overflow-hidden flex items-center">
+        <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=2000" 
             alt="News Hero" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-40 scale-105 animate-slow-zoom"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 to-gray-900" />
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-gray-900/60 to-gray-900" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-black text-white mb-6"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-[10vw] font-black text-white mb-8 tracking-tighter uppercase leading-[0.85]"
           >
-            {lang === 'id' ? 'Berita & Artikel' : 'News & Articles'}
+            {lang === 'id' ? 'Berita &\nArtikel' : 'News &\nArticles'}
           </motion.h1>
-          <p className="text-xl text-emerald-400 font-bold uppercase tracking-[0.3em]">
+          <p className="text-xl text-emerald-400 font-black uppercase tracking-[0.5em]">
             LATEST UPDATES FROM AIC HOLDING
           </p>
         </div>

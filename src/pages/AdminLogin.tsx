@@ -23,10 +23,10 @@ export default function AdminLogin() {
       });
       const data = await res.json();
       if (data.success) {
-        localStorage.setItem('admin_token', data.token);
+        // Token is now handled via HttpOnly cookie
         navigate('/admin/dashboard');
       } else {
-        setError(data.message);
+        setError(data.error || 'Invalid credentials');
       }
     } catch (err) {
       setError('Connection error. Please try again.');

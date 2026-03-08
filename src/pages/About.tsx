@@ -23,28 +23,30 @@ export default function About() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative py-32 bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
+      <section className="relative h-[70vh] bg-gray-900 overflow-hidden flex items-center">
+        <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=2000" 
             alt="About Hero" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-40 scale-105 animate-slow-zoom"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 to-gray-900" />
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-gray-900/60 to-gray-900" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-black text-white mb-6"
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            {lang === 'id' ? 'Tentang Kami' : 'About Us'}
-          </motion.h1>
-          <p className="text-xl text-emerald-400 font-bold uppercase tracking-[0.3em]">
-            AIC HOLDING (Anugerah Insan Cipta)
-          </p>
+            <p className="text-emerald-400 font-black text-xs uppercase tracking-[0.5em] mb-6">
+              AIC HOLDING (Anugerah Insan Cipta)
+            </p>
+            <h1 className="text-6xl md:text-[12vw] font-black text-white mb-6 leading-[0.85] uppercase tracking-tighter">
+              {lang === 'id' ? 'Tentang\nKami' : 'About\nUs'}
+            </h1>
+          </motion.div>
         </div>
       </section>
 
@@ -99,13 +101,15 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
             {/* Vision */}
-            <div className="bg-emerald-900 text-white p-12 md:p-16 rounded-[3rem] shadow-2xl relative overflow-hidden outline outline-1 outline-white/10 shadow-emerald-500/20">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/10 rounded-full blur-[80px] -mr-32 -mt-32" />
+            <div className="relative group p-12 md:p-20 rounded-[3rem] overflow-hidden shadow-2xl outline outline-1 outline-white/10 shadow-emerald-500/20 bg-gray-950">
+              <div className="absolute inset-0 opacity-40">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_30%,#065f46_0%,transparent_60%),radial-gradient(circle_at_10%_80%,#10b981_0%,transparent_50%)] blur-[60px]" />
+              </div>
               <div className="relative z-10">
-                <span className="text-emerald-400 font-black text-xs uppercase tracking-[0.3em] mb-6 block">
+                <span className="text-emerald-400 font-black text-xs uppercase tracking-[0.4em] mb-8 block">
                   {lang === 'id' ? 'VISI KAMI' : 'OUR VISION'}
                 </span>
-                <h3 className="text-3xl md:text-4xl font-black mb-8 leading-tight italic drop-shadow-lg">
+                <h3 className="text-3xl md:text-5xl font-serif italic text-white leading-tight drop-shadow-2xl">
                   "{t('vision')}"
                 </h3>
               </div>

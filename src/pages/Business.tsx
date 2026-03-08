@@ -43,26 +43,27 @@ export default function Business() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative py-40 bg-gray-950 overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
+      <section className="relative h-[60vh] bg-gray-950 overflow-hidden flex items-center">
+        <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1454165833767-027ffea9e778?auto=format&fit=crop&q=80&w=2000" 
             alt="Business Hero" 
-            className="w-full h-full object-cover animate-slow-zoom"
+            className="w-full h-full object-cover opacity-40 animate-slow-zoom"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/80 via-gray-950/40 to-gray-950" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-[10vw] font-black text-white mb-8 tracking-tighter uppercase leading-[0.85]"
           >
-            {lang === 'id' ? 'Bisnis Kami' : 'Our Business'}
+            {lang === 'id' ? 'Bisnis\nKami' : 'Our\nBusiness'}
           </motion.h1>
-          <p className="text-xl text-emerald-400 font-black uppercase tracking-[0.4em]">
+          <p className="text-xl text-emerald-400 font-black uppercase tracking-[0.5em]">
             STRATEGIC BUSINESS ECOSYSTEM
           </p>
         </div>
@@ -114,19 +115,33 @@ export default function Business() {
                     viewport={{ once: true }}
                     className="flex-1"
                   >
-                    <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em] mb-6 block">
-                      {line.pt_name}
-                    </span>
-                    <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-10 leading-[1.1] tracking-tight">
+                    <div className="mb-8 flex items-center gap-4">
+                      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg", config.iconBg)}>
+                        <IconComponent size={24} />
+                      </div>
+                      <span className="text-emerald-600 font-black text-xs uppercase tracking-[0.4em]">
+                        {line.pt_name}
+                      </span>
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-10 leading-[1.1] tracking-tight uppercase">
                       {lang === 'id' ? line.title_id : line.title_en}
                     </h2>
-                    <div className="text-gray-600 mb-12 max-w-none">
-                      <p className="mb-8 leading-relaxed font-bold text-gray-900 text-xl border-l-4 border-emerald-500 pl-6">
-                        {lang === 'id' ? line.short_desc_id : line.short_desc_en}
-                      </p>
-                      <p className="leading-relaxed text-lg font-medium text-gray-500">
-                        {lang === 'id' ? line.long_desc_id : line.long_desc_en}
-                      </p>
+                    
+                    <div className="grid grid-cols-1 gap-1 border-y border-gray-200 mb-12">
+                      <div className="data-row">
+                        <span className="col-header">01</span>
+                        <span className="col-header">Overview</span>
+                        <span className="data-value col-span-2 text-gray-600">
+                          {lang === 'id' ? line.short_desc_id : line.short_desc_en}
+                        </span>
+                      </div>
+                      <div className="data-row">
+                        <span className="col-header">02</span>
+                        <span className="col-header">Strategy</span>
+                        <span className="data-value col-span-2 text-gray-600">
+                          {lang === 'id' ? line.long_desc_id : line.long_desc_en}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-14">

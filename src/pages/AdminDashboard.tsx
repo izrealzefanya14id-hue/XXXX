@@ -48,10 +48,20 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-    if (!token) navigate('/admin/login');
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/check');
+        if (!res.ok) {
+          navigate('/admin/login');
+        } else {
+          fetchInquiries();
+        }
+      } catch (err) {
+        navigate('/admin/login');
+      }
+    };
     
-    fetchInquiries();
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -69,9 +79,14 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+      navigate('/admin/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      navigate('/admin/login');
+    }
   };
 
   const handleDelete = async (id: number) => {

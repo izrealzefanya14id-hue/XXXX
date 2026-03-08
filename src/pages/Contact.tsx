@@ -48,26 +48,27 @@ export default function Contact() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative py-32 bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
+      <section className="relative h-[60vh] bg-gray-900 overflow-hidden flex items-center">
+        <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?auto=format&fit=crop&q=80&w=2000" 
             alt="Contact Hero" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-40 animate-slow-zoom"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 to-gray-900" />
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-gray-900/60 to-gray-900" />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-black text-white mb-6"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-[10vw] font-black text-white mb-8 tracking-tighter uppercase leading-[0.85]"
           >
-            {lang === 'id' ? 'Hubungi Kami' : 'Contact Us'}
+            {lang === 'id' ? 'Hubungi\nKami' : 'Contact\nUs'}
           </motion.h1>
-          <p className="text-xl text-emerald-400 font-bold uppercase tracking-[0.3em]">
+          <p className="text-xl text-emerald-400 font-black uppercase tracking-[0.5em]">
             GET IN TOUCH WITH OUR TEAM
           </p>
         </div>
@@ -94,42 +95,42 @@ export default function Contact() {
                   : 'Do you have questions about our services or want to explore partnership opportunities? Our team is ready to assist you.'}
               </p>
 
-              <div className="space-y-10">
-                <div className="flex gap-8 group">
-                  <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+              <div className="space-y-0 border-t border-gray-900">
+                <div className="flex gap-8 group py-10 border-b border-gray-900">
+                  <div className="w-16 h-16 bg-gray-900 rounded-none flex items-center justify-center text-white shrink-0 group-hover:bg-emerald-600 transition-all duration-300">
                     <MapPin size={32} />
                   </div>
                   <div>
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-2">{lang === 'id' ? 'Kantor Pusat' : 'Headquarters'}</h4>
-                    <p className="text-xl font-bold text-gray-900 leading-relaxed">{settings?.address}</p>
+                    <p className="text-xl font-black text-gray-900 leading-relaxed uppercase">{settings?.address}</p>
                   </div>
                 </div>
 
-                <div className="flex gap-8 group">
-                  <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                <div className="flex gap-8 group py-10 border-b border-gray-900">
+                  <div className="w-16 h-16 bg-gray-900 rounded-none flex items-center justify-center text-white shrink-0 group-hover:bg-emerald-600 transition-all duration-300">
                     <Phone size={32} />
                   </div>
                   <div>
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-2">{lang === 'id' ? 'Telepon & WhatsApp' : 'Phone & WhatsApp'}</h4>
-                    <p className="text-xl font-bold text-gray-900 leading-relaxed">{settings?.phone}</p>
+                    <p className="text-xl font-black text-gray-900 leading-relaxed">{settings?.phone}</p>
                     <a 
                       href={`https://wa.me/${settings?.whatsapp}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-emerald-600 font-black mt-4 inline-flex items-center gap-2 hover:gap-4 transition-all text-sm uppercase tracking-widest"
+                      className="text-emerald-600 font-black mt-4 inline-flex items-center gap-2 hover:gap-4 transition-all text-xs uppercase tracking-[0.2em]"
                     >
-                      <MessageCircle size={20} /> Chat via WhatsApp
+                      <MessageCircle size={18} /> Chat via WhatsApp
                     </a>
                   </div>
                 </div>
 
-                <div className="flex gap-8 group">
-                  <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-lg shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                <div className="flex gap-8 group py-10 border-b border-gray-900">
+                  <div className="w-16 h-16 bg-gray-900 rounded-none flex items-center justify-center text-white shrink-0 group-hover:bg-emerald-600 transition-all duration-300">
                     <Mail size={32} />
                   </div>
                   <div>
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-2">{lang === 'id' ? 'Email Resmi' : 'Official Email'}</h4>
-                    <p className="text-xl font-bold text-gray-900 leading-relaxed">{settings?.email}</p>
+                    <p className="text-xl font-black text-gray-900 leading-relaxed uppercase">{settings?.email}</p>
                   </div>
                 </div>
               </div>

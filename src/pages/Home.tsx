@@ -87,7 +87,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="text-5xl md:text-8xl font-black text-white mb-4 tracking-tighter leading-tight"
+              className="text-6xl md:text-[10vw] font-black text-white mb-4 tracking-tighter leading-[0.85] uppercase"
             >
               {slides[currentSlide].title}
             </motion.h1>
@@ -95,7 +95,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="text-2xl md:text-4xl font-bold text-emerald-400 mb-8 tracking-tight"
+              className="text-2xl md:text-5xl font-serif italic text-emerald-400 mb-8 tracking-tight"
             >
               {slides[currentSlide].subtitle}
             </motion.h2>
